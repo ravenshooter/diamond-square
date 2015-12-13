@@ -1,0 +1,40 @@
+
+package org.yourorghere;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+
+class KeyHandler implements KeyListener{
+
+    Camera camera;
+    KeyHandler(Camera camera){
+        this.camera = camera;
+    }
+    
+    public void keyTyped(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_UP){
+            camera.setX(camera.getX()+1);
+        }
+        if(e.getKeyCode() == KeyEvent.VK_DOWN){
+            camera.setX(camera.getX()-1);
+        }
+        if(e.getKeyCode() == KeyEvent.VK_LEFT){
+            camera.setY(camera.getY()+1);
+        }
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT){
+            camera.setY(camera.getY()-1);
+        }
+    }
+
+    public void keyPressed(KeyEvent e) {
+        keyTyped(e);
+        
+        
+    }
+
+    public void keyReleased(KeyEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+}

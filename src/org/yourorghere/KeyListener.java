@@ -1,0 +1,64 @@
+package org.yourorghere;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+
+class KeyHandler implements KeyListener{
+
+    
+    
+    
+    Camera camera;
+    KeyHandler(Camera camera){
+        this.camera = camera;
+    }
+    
+    public void keyTyped(KeyEvent e) {
+        setCameraFlags(true,e);
+    }
+
+    public void keyPressed(KeyEvent e) {
+        keyTyped(e);
+    }
+
+    public void keyReleased(KeyEvent e) {
+        setCameraFlags(false,e);
+    }
+    
+    private void setCameraFlags(boolean flag, KeyEvent e){
+        if(e.getKeyCode() == KeyEvent.VK_UP){
+            camera.moveUp = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_DOWN){
+            camera.moveDown = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_LEFT){
+            camera.moveLeft = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT){
+            camera.moveRight = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_E){
+            camera.rotRight = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_Q){
+            camera.rotLeft = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_W){
+            camera.focUp = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_A){
+            camera.focLeft = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_S){
+            camera.focDown = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_D){
+            camera.focRight = flag;
+        }
+        if(e.getKeyCode() == KeyEvent.VK_SPACE){
+            camera.resetFocus();
+        }
+    }
+}

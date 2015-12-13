@@ -1,0 +1,44 @@
+
+package org.yourorghere;
+
+import java.awt.BorderLayout;
+import javax.media.opengl.GLCapabilities;
+import javax.swing.JFrame;
+
+public class Main {
+
+    public Main(){
+        GLCapabilities capabilities = createGLCapabilities();
+        double[][] m = new double[5][5];
+        for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 5; j++){
+                m[i][j] =Math.random()*50;
+            }
+        }
+        Camera camera = new Camera(-50,0,200);
+        GodAlgorythm canvas = new GodAlgorythm(capabilities, 800, 500, m, camera);
+        JFrame frame = new JFrame("Mini JOGL Demo (breed)");
+        frame.getContentPane().add(canvas, BorderLayout.CENTER);
+        frame.setSize(800, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        
+        canvas.addKeyListener(new KeyHandler(camera));
+        canvas.requestFocus();
+    }
+    
+    
+    private static GLCapabilities createGLCapabilities() {
+        GLCapabilities capabilities = new GLCapabilities();
+        capabilities.setRedBits(8);
+        capabilities.setBlueBits(8);
+        capabilities.setGreenBits(8);
+        capabilities.setAlphaBits(8);
+        return capabilities;
+    }
+    
+    
+    public static void main(String[] args){
+        new Main();
+    }
+}

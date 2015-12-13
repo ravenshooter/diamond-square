@@ -1,0 +1,37 @@
+
+package org.yourorghere;
+
+public class Camera {
+    int x,y,height;
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public synchronized void setX(int x) {
+        this.x = x;
+    }
+
+    public synchronized void setY(int y) {
+        this.y = y;
+    }
+
+    public synchronized void setHeight(int height) {
+        this.height = height;
+    }
+
+    public Camera(int x, int y, int height) {
+        this.x = x;
+        this.y = y;
+        this.height = height;
+    }
+    
+}
