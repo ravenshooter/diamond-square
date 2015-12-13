@@ -1,0 +1,33 @@
+
+package JOGL;
+
+import Tools.SceneManagment.Scene;
+import java.awt.Color;
+import java.awt.Label;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class LoadScene extends Scene{
+    public LoadScene(){
+        super("LoadScene",500,600);
+
+        
+        getContentPane().setBackground(Color.red);
+        getContentPane().add(new Label("TEST"));
+    }
+    
+    @Override
+    public void sceneAdded(){
+       //getContentPane().setLayout(null);
+       //getContentPane().setBackground(Color.red);
+       //getContentPane().add(new Label("TEST")); 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(LoadScene.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
+    }
+}
+
+

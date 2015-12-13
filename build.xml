@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- You may freely edit this file. See commented blocks below for -->
 <!-- some examples of how to customize the build. -->
-<project name="GodAlgorythm" default="default" basedir=".">
-    <description>Builds, tests, and runs the project GodAlgorythm.</description>
+<project name="TileMapJOGL1" default="default" basedir=".">
+    <description>Builds, tests, and runs the project TileMapJOGL1.</description>
     <import file="nbproject/build-impl.xml"/>
     <import file="nbproject/build-jogl-template-impl.xml"/>
     <!--

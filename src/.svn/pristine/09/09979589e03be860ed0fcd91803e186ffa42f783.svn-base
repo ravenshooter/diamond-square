@@ -1,0 +1,185 @@
+package JOGL;
+
+import JOGL.Camera.KeyHandler;
+import TileMap.Tile;
+import TileMap.TileMap;
+import Tools.GV;
+import com.sun.opengl.util.Animator;
+import com.sun.opengl.util.FPSAnimator;
+import java.awt.Frame;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.nio.FloatBuffer;
+import javax.media.opengl.DebugGL;
+import javax.media.opengl.GL;
+import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLCanvas;
+import javax.media.opengl.GLEventListener;
+import javax.media.opengl.glu.GLU;
+
+
+
+/**
+ * JOGLWindow.java <BR>
+ * author: Brian Paul (converted to Java by Ron Cemer and Sven Goethel) <P>
+ *
+ * This version is equal to Brian Paul's version 1.2 1999/10/21
+ */
+public class JOGLWindow extends GLCanvas implements GLEventListener {
+
+    GLU glu;
+    FPSAnimator animator;
+    int fps = 60;
+    Camera camera;
+    
+    boolean smooth = true;
+    
+    
+
+    
+    public JOGLWindow(){
+        addGLEventListener(this);
+        
+    }
+    
+    
+    public void init(GLAutoDrawable drawable) {
+        drawable.setGL(new DebugGL(drawable.getGL()));
+        final GL gl = drawable.getGL();
+
+        // Enable z- (depth) buffer for hidden surface removal. 
+        //gl.glEnable(GL.GL_DEPTH_TEST);
+        //gl.glDepthFunc(GL.GL_LEQUAL);
+
+        // Enable smooth shading.
+        gl.glShadeModel(GL.GL_SMOOTH);
+        
+
+        // Define "clear" color.
+        gl.glClearColor(0f, 0f, 0f, 0f);
+
+        // We want a nice perspective.
+        gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
+
+        // Create GLU.
+        glu = new GLU();
+
+        camera = new Camera(0,0,400,this);
+        camera.resetFocus();
+        
+        animator = new FPSAnimator(this, fps);
+        animator.start();
+    }
+    
+    
+    public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+        GL gl = drawable.getGL();
+        GLU glu = new GLU();
+
+        if (height <= 0) { // avoid a divide by zero error!
+        
+            height = 1;
+        }
+        final float h = (float) width / (float) height;
+        gl.glViewport(0, 0, width, height);
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glLoadIdentity();
+        glu.gluPerspective(45.0f, h, 1.0, 20.0);
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glLoadIdentity();
+    }
+
+   public void display(GLAutoDrawable drawable) {
+        if (!animator.isAnimating()) {
+            return;
+        }
+        final GL gl = drawable.getGL();
+
+        
+        
+        // Clear screen.
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+
+        camera.replaceCamera();
+        setCamera(gl,glu);
+        
+        // Drawing Using Triangles
+        gl.glBegin(GL.GL_TRIANGLES);
+            gl.glVertex3f(0.0f, 1.0f, 0.0f);   // Top
+            gl.glVertex3f(-1.0f, -1.0f, 0.0f); // Bottom Left
+            gl.glVertex3f(1.0f, -1.0f, 0.0f);  // Bottom Right
+        // Finished Drawing The Triangle
+        gl.glEnd();
+
+        drawTileMap(gl, glu);
+        
+        // Flush all drawing operations to the graphics card
+        gl.glFlush();
+    }
+   
+   
+   private void setCamera(GL gl, GLU glu) {
+        // Change to projection matrix.
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glLoadIdentity();
+
+        // Perspective.
+        float widthHeightRatio = (float) getWidth() / (float) getHeight();
+        glu.gluPerspective(45, widthHeightRatio, 1, 1000);
+        glu.gluLookAt(camera.getX(),camera.getY(),camera.getHeight(),   camera.getFocusX(),camera.getFocusY(),0,     0, 0, 1);
+        
+
+        // Change back to model view matrix.
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glLoadIdentity();
+    }
+   
+   
+   private void drawTileMap(GL gl, GLU glu){
+       TileMap tileMap = GV.get().getTileMap();
+       int xTileSize = tileMap.getXTileSize();
+       int yTileSize = tileMap.getYTileSize();
+       Tile[] drawList = tileMap.getDrawList();
+       //for(int j = 0; j < tileMap.getHeight();j++){
+       //     for(int i = 0; i < tileMap.getWidth(); i++){
+       for(int k = 0; k < drawList.length;k++){
+                float height = (float)drawList[k].getHeight();
+                gl.glBegin(GL.GL_QUADS);
+                    /*if(drawList[k].getType().compareTo("grass")==0) {
+                        gl.glColor3f(0f, 1f, 0f);
+                    }
+                    if(drawList[k].getType().compareTo("desert")==0) {
+                        gl.glColor3f(1f, 0f, 1f);
+                    }*/
+                gl.glColor3fv(FloatBuffer.wrap(drawList[k].getColor3f()));
+                    if(smooth){
+                        
+                        gl.glVertex3fv(FloatBuffer.wrap(drawList[k].getCornerBuffer(0)));
+                        gl.glVertex3fv(FloatBuffer.wrap(drawList[k].getCornerBuffer(1)));
+                        gl.glVertex3fv(FloatBuffer.wrap(drawList[k].getCornerBuffer(2)));
+                        gl.glVertex3fv(FloatBuffer.wrap(drawList[k].getCornerBuffer(3)));
+                        /*gl.glEnd();
+                        gl.glBegin(GL.GL_QUADS);
+                        gl.glColor3f(0, 0, 0);
+                        gl.glVertex3f((float)(drawList[k].getXPos()), (drawList[k].getYPos()), height);
+                        gl.glVertex3f((float)(drawList[k].getXPos()), (drawList[k].getYPos())+0.1f, (float)drawList[k].getNeighbour(4).height+0.2f);
+                        gl.glVertex3f((float)(drawList[k].getXPos()+xTileSize), (drawList[k].getYPos())+0.1f, (float)drawList[k].getNeighbour(3).height+0.2f);
+                        gl.glVertex3f((float)(drawList[k].getXPos()+xTileSize), (drawList[k].getYPos()), (float)drawList[k].getNeighbour(2).height+0.2f);
+                        */
+                    }else{
+                        gl.glVertex3f((float)(drawList[k].getXPos()), (drawList[k].getYPos()), height);
+                        gl.glVertex3f((float)(drawList[k].getXPos()), (drawList[k].getYPos())+yTileSize, height);
+                        gl.glVertex3f((float)(drawList[k].getXPos()+xTileSize), (drawList[k].getYPos())+yTileSize, height);
+                        gl.glVertex3f((float)(drawList[k].getXPos()+xTileSize), (drawList[k].getYPos()), height);
+                    } 
+                    
+                gl.glEnd();
+       //     }
+       //}
+       }
+   }
+
+    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
+    }
+}
+

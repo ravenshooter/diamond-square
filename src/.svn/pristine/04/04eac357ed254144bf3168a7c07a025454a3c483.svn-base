@@ -1,0 +1,50 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package TileMap;
+
+import Tools.GV;
+/**
+ * Write a description of class Marker here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class Marker
+{
+    
+    TileMap tileMap;
+    Tile tile;
+    
+    /**
+     * Constructor for objects of class Marker
+     */
+    public Marker()
+    {
+        GV.get().setMarker(this);
+        tileMap = GV.get().getTileMap();
+        tile = tileMap.getTile(1,1);
+        tile.setMarked(true);
+    }
+    
+    
+    
+    public void move(int dir){
+        tile.setMarked(false);
+        tile = tile.getNeighbour(dir);
+        tile.setMarked(true);
+    }
+    
+    public int getXPos(){
+        return tile.xPos;
+    }
+    public int getYPos(){
+        return tile.yPos;
+    }
+    
+    public Tile getMarkedTile(){
+        return this.tile;
+    }
+        
+}

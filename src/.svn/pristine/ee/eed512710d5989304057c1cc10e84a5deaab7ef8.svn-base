@@ -1,0 +1,515 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package TileMap;
+import Entities.Entity;
+import Tools.GV;
+import Tools.Sprite;
+import Tools.SpriteStore;
+import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.nio.FloatBuffer;
+import javax.media.opengl.GL;
+/**
+ * Write a description of class Tile here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class Tile implements Comparable<Tile>
+{
+    String type;
+    Sprite sprite;
+    Point center;
+    ArrayList <Entity> entities = new ArrayList<Entity>();
+    boolean hasEntities;
+    public double height;
+
+    
+    boolean showHeight = true;
+    int xNr;
+    int yNr;
+    int xPos;
+    int yPos;
+    Rectangle tileRect;
+    boolean markable = true; //true wenn diese Zelle markiert werden kann;
+    boolean passable = true;
+    boolean buildable = true;
+    boolean marked;
+    
+    public Vertex[]corners;
+    
+    
+    float[] color3f;
+    
+    /**
+     * Referenzen auf die Umgebung des Tiles, 0 ist oben, dann im Uhrzeigersinn
+     */
+    Tile neighbours[];
+    
+    
+    /**
+     * Constructor for objects of class Tile
+     */
+    public Tile(TileMap tileMap, String type, int xNr, int yNr)
+    {
+        neighbours = new Tile[8];
+        neighbours[0] = tileMap.getTile(xNr,yNr-1);
+        neighbours[1] = tileMap.getTile(xNr+1,yNr-1);
+        neighbours[2] = tileMap.getTile(xNr+1,yNr);
+        neighbours[3] = tileMap.getTile(xNr+1,yNr+1);
+        neighbours[4] = tileMap.getTile(xNr,yNr+1);
+        neighbours[5] = tileMap.getTile(xNr-1,yNr+1);
+        neighbours[6] = tileMap.getTile(xNr-1,yNr);
+        neighbours[7] = tileMap.getTile(xNr-1,yNr-1);
+        this.xNr = xNr;
+        this.yNr = yNr;
+        xPos = xNr*GV.get().getXTileSize();
+        yPos = yNr*GV.get().getYTileSize();
+        tileRect= new Rectangle(xPos,yPos,GV.get().getXTileSize(),GV.get().getYTileSize());
+        center = new Point(xPos+GV.get().getXTileSize()/2,yPos+GV.get().getYTileSize()/2);
+        
+        
+        setType(type);
+        color3f = new float[3];
+        corners = new Vertex[4];
+        
+
+        hasEntities =false;
+        if(type.compareTo("water")==0){
+            passable = false;
+            buildable = false;
+        }
+    }
+    
+    /**
+     * Konstuktor fuer ein black Tile ohne jeglichen Wert
+     */
+    public Tile(){
+        this.type = "black";
+        sprite = SpriteStore.get().getSprite(type+".png");
+        height = 0;
+        hasEntities =false;
+        markable = false;
+        passable = false;
+    }
+    
+    public final void setType(String type){
+        this.type = type;
+        //neighbours = new Tile[8];
+        //setNeighbours();
+        sprite = SpriteStore.get().getSprite(type+".png");
+        if(type.compareTo("water")==0){
+                    passable = false;
+                    buildable = false;
+        }
+    }
+    
+    
+
+
+    public synchronized void draw(Graphics2D g, int x, int y){
+        int dstx1 = x; 
+        int dstx2 = x+GV.get().getXTileSize();
+        int srcx1 = (xNr*GV.get().getXTileSize())%sprite.getWidth(); 
+        int srcx2 = srcx1+GV.get().getXTileSize(); 
+        int dsty1;
+        int dsty2;
+        int srcy1;
+        int srcy2;
+        if(type.compareTo("water")==0 && neighbours[4].getType().compareTo("grass")==0){
+             sprite = SpriteStore.get().getSprite("beach.png");
+             dsty1 = y-50;
+             dsty2 = y+50;
+             srcy1 = 500;
+             srcy2 = 600;
+        }else{
+             dsty1 = y;
+             dsty2 = y+GV.get().getYTileSize();              
+             srcy1 = (yNr*GV.get().getYTileSize())%sprite.getHeight(); 
+             srcy2 = srcy1+GV.get().getYTileSize();          
+        }
+        g.drawImage(sprite.getImage(),
+                    dstx1,dsty1,dstx2,dsty2,
+                    srcx1,srcy1,srcx2,srcy2,
+                    null);
+        
+        if(showHeight){
+            g.drawString(String.valueOf(height),x,y+10);
+        }
+    }
+    
+    public void drawEntities(Graphics2D g, int x, int y){
+        
+    if(hasEntities){
+        synchronized(entities){        
+            for(int i = 0; i < entities.size();i++){
+                entities.get(i).draw(g,x,y);
+            }
+        }
+    }
+    }
+    
+    public synchronized void mouseClicked(){
+        System.out.println(type);
+        for(int i = 0; i < entities.size();i++){
+            if(entities.get(i).isClickable()){
+                entities.get(i).mouseClicked();
+            }
+        }
+    }
+    
+    /*public boolean addEntity(Entity e){
+        if(!buildable){
+            if(e instanceof Building)
+                return false;
+        }
+        if(!markable){
+            if(e instanceof Marker)
+                return false;
+        }
+        if(!passable){
+            if(e instanceof movingEntity)
+            {
+                movingEntity me = (movingEntity) e;
+                me.setCollision(true);
+                entities.add(e);
+                hasEntities = true;
+                return false;
+            }
+        }
+        entities.add(e);
+        if(e instanceof Building)
+            setUnbuildable();
+        hasEntities = true;
+        return true;
+    }
+    * */
+    
+    public Entity getEntity(){
+        if(entities.size() != 0){
+            if(entities.get(0).getClass().getName().compareTo("Marker")!=0)
+                return entities.get(0);
+            else{
+                if(entities.size()>0){
+                    return entities.get(1);
+                }else{
+                    return null;
+                }
+            }
+        }else{
+            return null;
+        }
+    }
+    
+    
+    public void remove(Entity e){
+        int entityID = entities.indexOf(e);
+        if(entityID == -1){}else{
+            entities.remove(entityID);
+            if(entities.size() == 0){
+                hasEntities=false;
+            }
+        }
+    }
+    
+    public void setHeight(double height) {
+        this.height = height;
+    }
+    
+    
+    
+    public void draw(GL gl) {
+        gl.glBegin(GL.GL_QUADS);
+        /*if(drawList[k].getType().compareTo("grass")==0) {
+         gl.glColor3f(0f, 1f, 0f);
+         }
+         if(drawList[k].getType().compareTo("desert")==0) {
+         gl.glColor3f(1f, 0f, 1f);
+         }*/
+        if (marked) {
+            gl.glColor3f(1, 0, 0);
+        }else{
+            gl.glColor3fv(FloatBuffer.wrap(getColor3f()));
+        }
+
+        gl.glVertex3fv(FloatBuffer.wrap(getCornerBuffer(0)));
+        gl.glVertex3fv(FloatBuffer.wrap(getCornerBuffer(1)));
+        gl.glVertex3fv(FloatBuffer.wrap(getCornerBuffer(2)));
+        gl.glVertex3fv(FloatBuffer.wrap(getCornerBuffer(3)));
+        
+
+
+        gl.glEnd();
+    }
+    
+    public void setMarked(boolean marked){
+        this.marked = marked;
+    }
+    
+    
+    /*
+    public collideable isColliding(Point p){
+        Entity e;
+        for(int i = 0; i < entities.size();i++){
+            e = entities.get(i);
+            if(e instanceof collideable){
+                collideable c = (collideable) e;
+                if(c.isColliding(p))
+                    return c; 
+            }
+        }
+        return null;
+    }
+    * 
+    * */
+    
+    public void doLogic(int time){
+        for(int i = 0; i < entities.size();i++){
+            entities.get(i).doLogic(time);
+        }
+    }
+    
+    public void setNeighbours(TileMap tileMap, int xNr,int yNr){
+        neighbours[0] = tileMap.getTile(xNr,yNr-1);
+        neighbours[1] = tileMap.getTile(xNr+1,yNr-1);
+        neighbours[2] = tileMap.getTile(xNr+1,yNr);
+        neighbours[3] = tileMap.getTile(xNr+1,yNr+1);
+        neighbours[4] = tileMap.getTile(xNr,yNr+1);
+        neighbours[5] = tileMap.getTile(xNr-1,yNr+1);
+        neighbours[6] = tileMap.getTile(xNr-1,yNr);
+        neighbours[7] = tileMap.getTile(xNr-1,yNr-1);
+    }
+    
+    private void setNeighbours(){
+        TileMap tileMap = GV.get().getTileMap();
+        neighbours[0] = tileMap.getTile(xNr,yNr-1);
+        neighbours[1] = tileMap.getTile(xNr+1,yNr-1);
+        neighbours[2] = tileMap.getTile(xNr+1,yNr);
+        neighbours[3] = tileMap.getTile(xNr+1,yNr+1);
+        neighbours[4] = tileMap.getTile(xNr,yNr+1);
+        neighbours[5] = tileMap.getTile(xNr-1,yNr+1);
+        neighbours[6] = tileMap.getTile(xNr-1,yNr);
+        neighbours[7] = tileMap.getTile(xNr-1,yNr-1);
+    }
+    
+    /**
+     * Returns the neighbour at the position nr, 0 is above, than clockwise, maximum 7
+     * @param nr Position of the neighbour
+     * @return returns null if nr > 7
+     */
+    public Tile getNeighbour(int nr){
+        if(nr < 8){
+            if(neighbours[nr]!= null)
+                return neighbours[nr];
+            else{
+                //return new Tile();
+                return null;
+            }
+        }else{
+            return null;
+        }
+    }
+    public void setUnpassable(){
+        passable = false;
+    }
+    public void setUnbuildable(){
+        buildable = false;
+    }
+    
+    public void setShowHeight(boolean set){
+        showHeight = set;
+    }
+    public int getXNr(){
+        return xNr;
+    }
+    public int getYNr(){
+        return yNr;
+    }
+    public int getXPos(){
+        return xPos;
+    }
+    public int getYPos(){
+        return yPos;
+    }
+    public Point getCenter(){
+        return center;
+    }
+    public int getXSize(){
+        return sprite.getWidth();
+    }
+    public int getYSize(){
+        return sprite.getHeight();
+    }
+    public String getType(){
+        return type;
+    }
+    public double getHeight(){
+        return height;
+    }
+    public boolean isMarkable(){
+        return markable;
+    }
+    public synchronized Entity hasEntity(String entity){
+        for(int i = 0; i < entities.size();i++){
+            if(entities.get(i).getClass().getName().compareTo(entity) == 0){
+                return entities.get(i);
+            }
+        }
+        return null;
+    }
+    public Point getPos(){
+        return new Point(xNr*GV.get().getXTileSize(),yNr*GV.get().getYTileSize());
+    }
+    
+    public int hasNeighbour(String type){
+        int amount = 0;
+        for(int i = 0;i < 8; i++ ){
+            if(neighbours[i].getType().compareTo(type)==0)
+                amount++;
+        }
+        return amount;
+    }
+        public int hasNeighbourAtBorder(String type){
+        int amount = 0;
+        for(int i = 0;i < 8; i = i + 2 ){
+            if(neighbours[i].getType().compareTo(type)==0)
+                amount++;
+        }
+        return amount;
+    }
+
+    public int compareTo(Tile o) {
+        if( height < o.height )
+            return -1;
+        if( height > o.height )
+            return 1;
+            
+        return 0;
+
+    }
+    
+    public void doSmoothCorners(){
+        corners[0] = new Vertex((float)xPos,(float)yPos,(float)height);
+        corners[1] = new Vertex((float)xPos,(float)yPos+GV.get().getYTileSize(),(float)getNeighbour(4).height);
+        corners[2] = new Vertex((float)xPos+GV.get().getXTileSize(),(float)yPos+GV.get().getYTileSize(),(float)getNeighbour(3).height);
+        corners[3] = new Vertex((float)xPos+GV.get().getXTileSize(),(float)yPos,(float)getNeighbour(2).height);        
+    }
+    public void doRoughCorners(){
+        corners[0] = new Vertex((float)xPos,(float)yPos,(float)height);
+        corners[1] = new Vertex((float)xPos,(float)yPos+GV.get().getYTileSize(),(float)height);
+        corners[2] = new Vertex((float)xPos+GV.get().getXTileSize(),(float)yPos+GV.get().getYTileSize(),(float)height);
+        corners[3] = new Vertex((float)xPos+GV.get().getXTileSize(),(float)yPos,(float)height);        
+    
+    }
+    
+    public float[] getCornerBuffer(int corner){
+        if(corners == null){
+            System.err.println("Maybe doCornerMathod not called yet.");
+        }
+        return corners[corner].getBuffer();
+    }
+    
+    
+    public void calcColor(){
+        Triangle t = new Triangle(corners[0],corners[1],corners[2]);
+        t.recalcColor();
+        color3f = t.color3f;
+        
+    }
+
+    public float[] getColor3f() {
+        return color3f;
+    }
+    
+    
+    
+    
+    class Triangle{
+        Vertex a,b,c;
+        float [] color3f = new float [3];
+        public Triangle(Vertex a, Vertex b, Vertex c ){
+           this.a = a;
+           this.b = b;
+           this.c = c;
+        }
+        
+        public void setOcean(){
+            color3f[0] = (float) (0.28f + Math.random()*0.1f);
+            color3f[1] = (float) (0.48f + Math.random()*0.1f);
+            color3f[2] = (float) (0.8f + Math.random()*0.1f);
+        }
+        
+        public void setBeach() {
+            color3f[0] = (float) (1f - Math.random()*0.1f);
+            color3f[1] = (float) (1f - Math.random()*0.1f);
+            color3f[2] = (float) (0f + Math.random()*0.1f);
+        }
+        
+        public void setForest() {
+            color3f[0] = (float) (0.05f + Math.random()*0.1f);
+            color3f[1] = (float) (0.4f + Math.random()*0.1f);
+            color3f[2] = (float) (0f + Math.random()*0.1f);
+        }
+        
+        public void setMountain() {
+            color3f[0] = (float) (0.4f + Math.random()*0.1f);
+            color3f[1] = (float) (0.4f + Math.random()*0.1f);
+            color3f[2] = (float) (0.4f + Math.random()*0.1f);
+        }
+        
+        public void setGlacier() {
+            color3f[0] = (float) (1f - Math.random()*0.1f);
+            color3f[1] = (float) (1f - Math.random()*0.1f);
+            color3f[2] = (float) (1f - Math.random()*0.1f);
+        }
+        
+        public void recalcColor(){
+            Vertex v1 = new Vertex(c.x - a.x, c.y - a.y, c.z - a.z);
+            Vertex v2 = new Vertex(b.x - a.x, b.y - a.y, b.z - a.z);
+            
+            Vertex vres = new Vertex(v1.y*v2.z - v1.z*v2.y,
+                                     v1.z*v2.x - v1.x*v2.z,
+                                     v1.x*v2.y - v1.y*v2.x);
+            
+            //vektor normieren
+            float fac = (float) Math.sqrt(Math.pow(vres.x,2) + Math.pow(vres.y,2) + Math.pow(vres.z,2));
+            vres.x /= fac;
+            vres.y /= fac;
+            vres.z /= fac;
+            
+            double p =  Math.sqrt(Math.pow(vres.x,2) + Math.pow(vres.y,2) + Math.pow(vres.z,2));
+            
+            Vertex vcam = new Vertex(-(float)(3/3.1),0f,(float)(1/3.1));
+            
+            color3f[0] = Math.abs((vcam.x*vres.x + vcam.y*vres.y + vcam.z*vres.z)*0.5f)+0.25f;
+            color3f[1] = color3f[0];
+            color3f[2] = color3f[0];
+        }
+        
+}
+
+    
+    
+public class Vertex{
+        
+        public float x,y,z;
+
+        Vertex(float x, float y, float z){
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        
+        public float[] getBuffer(){
+            float[] ret = {x,y,z};
+            return  ret;
+        }
+        
+
+        
+    }
+}

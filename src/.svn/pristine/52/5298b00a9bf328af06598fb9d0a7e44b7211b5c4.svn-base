@@ -1,0 +1,28 @@
+
+package TileMap;
+
+import JOGL.JOGLScene;
+import JOGL.LoadScene;
+import JOGL.TestScene;
+
+import Tools.DiamondSquare;
+import Tools.GV;
+import Tools.GameWindow;
+
+public class Main {
+
+    public static void main(String[]args){
+        GameWindow gw = new GameWindow();
+        new LoadScene();
+        gw.loadScene("LoadScene");
+        TileMap tilemap = new TileMap(GV.get().getXTiles(),GV.get().getYTiles(),GV.get().getXTileSize(),GV.get().getYTileSize());
+        tilemap.finishMap();
+        double heightmap[][] = new double[GV.get().getXTiles()][GV.get().getYTiles()];
+        DiamondSquare ds = new DiamondSquare();
+        heightmap = ds.diamondSquare(heightmap, GV.get().getHeightSeed());
+        tilemap.setHeight(heightmap,ds.getMaxHeight(),ds.getMinHeight());
+        tilemap.doGroundTypes();
+        new JOGLScene(gw.getFrame());
+        gw.loadScene("JOGLScene");
+    }
+}

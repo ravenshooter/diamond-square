@@ -1,0 +1,41 @@
+
+package JOGL;
+
+import Tools.GV;
+import Tools.SceneManagment.Scene;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+
+public class JOGLScene extends Scene{
+    Frame frame;
+    JOGLWindow canvas;
+
+    public JOGLScene(Frame frame) {
+        super("JOGLScene",640,480);
+        this.frame = frame;
+    }
+    
+    @Override
+    public void stop(){
+        canvas.animator.stop();
+    }
+    
+    /**
+     * called when the scene get's added to a frame; 
+     */
+    @Override
+    public void sceneAdded(){
+        canvas = new JOGLWindow();
+        frame.removeAll();
+        frame.setLayout(new BorderLayout());
+        frame.setVisible(false);
+        Frame newFrame = new Frame();
+        newFrame.setSize(getXRes(), getYRes());
+        newFrame.add(canvas);
+        newFrame.setVisible(true);
+        GV.get().getGameWindow().setFrame(newFrame);
+        //canvas.setVisible(true);
+
+    }
+
+}
