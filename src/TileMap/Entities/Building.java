@@ -5,7 +5,7 @@
 package TileMap.Entities;
 
 import TileMap.Tile;
-import javax.media.opengl.GL;
+import com.jogamp.opengl.GL;
 
 
 /**

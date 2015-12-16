@@ -6,13 +6,15 @@ import TileMap.Tile;
 import TileMap.TileMap;
 import Tools.Vertex;
 import Tools.GV;
-import com.sun.opengl.util.FPSAnimator;
-import javax.media.opengl.DebugGL;
-import javax.media.opengl.GL;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCanvas;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.glu.GLU;
+import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.DebugGL2;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.fixedfunc.GLLightingFunc;
+import com.jogamp.opengl.glu.GLU;
 
 
 
@@ -46,30 +48,30 @@ public class JOGLWindow extends GLCanvas implements GLEventListener {
     
     
     public void init(GLAutoDrawable drawable) {
-        drawable.setGL(new DebugGL(drawable.getGL()));
-        final GL gl = drawable.getGL();
+        drawable.setGL(new DebugGL2(drawable.getGL().getGL2()));
+        final GL2 gl = drawable.getGL().getGL2();
 
         // Enable z- (depth) buffer for hidden surface removal. 
         gl.glEnable(GL.GL_DEPTH_TEST);
         gl.glDepthFunc(GL.GL_LEQUAL);
 
         // Enable smooth shading.
-        gl.glShadeModel(GL.GL_SMOOTH);
+        gl.glShadeModel(GL2.GL_SMOOTH);
         
         
         
         if(GV.get().lightning){
-            gl.glEnable(GL.GL_LIGHTING);
-            gl.glEnable(GL.GL_LIGHT0);
+            gl.glEnable(GL2.GL_LIGHTING);
+            gl.glEnable(GL2.GL_LIGHT0);
             //gl.glLightModeli(GL.GL_LIGHT_MODEL_TWO_SIDE, GL.GL_TRUE);
-            gl.glEnable(GL.GL_COLOR_MATERIAL);
+            gl.glEnable(GL2.GL_COLOR_MATERIAL);
         }
         
         // Define "clear" color.
         gl.glClearColor(0f, 0f, 0f, 0f);
 
         // We want a nice perspective.
-        gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
+        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
 
         // Create GLU.
         glu = new GLU();
@@ -89,7 +91,7 @@ public class JOGLWindow extends GLCanvas implements GLEventListener {
     
     
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        GL gl = drawable.getGL();
+        GL2 gl = drawable.getGL().getGL2();
         glu = new GLU();
 
         if (height <= 0) { // avoid a divide by zero error!
@@ -98,10 +100,10 @@ public class JOGLWindow extends GLCanvas implements GLEventListener {
         }
         final float h = (float) width / (float) height;
         gl.glViewport(0, 0, width, height);
-        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
         glu.gluPerspective(45.0f, h, 1.0, 20.0);
-        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
     }
 
@@ -136,8 +138,8 @@ public class JOGLWindow extends GLCanvas implements GLEventListener {
    
    private void setCamera(GL gl, GLU glu) {
         // Change to projection matrix.
-        gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glLoadIdentity();
+        gl.getGL2().glMatrixMode(GL2.GL_PROJECTION);
+        gl.getGL2().glLoadIdentity();
 
         // Perspective.
         float widthHeightRatio = (float) getWidth() / (float) getHeight();
@@ -146,8 +148,8 @@ public class JOGLWindow extends GLCanvas implements GLEventListener {
         
 
         // Change back to model view matrix.
-        gl.glMatrixMode(GL.GL_MODELVIEW);
-        gl.glLoadIdentity();
+        gl.getGL2().glMatrixMode(GL2.GL_MODELVIEW);
+        gl.getGL2().glLoadIdentity();
     }
    
    
@@ -188,6 +190,10 @@ public class JOGLWindow extends GLCanvas implements GLEventListener {
    
 
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
+    }
+
+    public void dispose(GLAutoDrawable glad) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
 

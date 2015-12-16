@@ -2,13 +2,13 @@
 package org.yourorghere;
 
 import java.awt.BorderLayout;
-import javax.media.opengl.GLCapabilities;
+import com.jogamp.opengl.GLCapabilities;
 import javax.swing.JFrame;
 
 public class Main {
 
     public Main(){
-        GLCapabilities capabilities = createGLCapabilities();
+        GLCapabilities capabilities = null;
         double[][] m = new double[257][257];
         for(int i = 0; i < m.length; i++){
             for(int j = 0; j < m[0].length; j++){
@@ -32,7 +32,7 @@ public class Main {
         canvas.requestFocus();
     }
     
-    
+    /*
     private static GLCapabilities createGLCapabilities() {
         GLCapabilities capabilities = new GLCapabilities();
         capabilities.setRedBits(8);
@@ -41,7 +41,7 @@ public class Main {
         capabilities.setAlphaBits(8);
         return capabilities;
     }
-    
+    */
     
     public static void main(String[] args){
         new Main();

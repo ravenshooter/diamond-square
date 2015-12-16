@@ -1,0 +1,4 @@
+/dist/
+build/
+dist-windows-amd64/
+dist-windows-i586/

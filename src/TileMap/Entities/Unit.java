@@ -7,9 +7,10 @@ package TileMap.Entities;
 import TileMap.Tile;
 import Tools.Vertex;
 import Tools.AStar.Knoten;
-import javax.media.opengl.GL;
-import javax.media.opengl.glu.GLU;
-import javax.media.opengl.glu.GLUquadric;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
 
 /**
  *
@@ -46,7 +47,8 @@ public class Unit extends Entity implements Runnable{
     
     
     @Override
-    public void draw(GL gl) {
+    public void draw(GL gll) {
+        GL2 gl = gll.getGL2();
         GLU glu = new GLU();
         
         gl.glColor3f(colora, colorb, colorc);

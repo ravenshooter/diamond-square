@@ -6,19 +6,20 @@ package org.yourorghere;
 
 
 
-import javax.media.opengl.GL;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCanvas;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.glu.GLU;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.glu.GLU;
 import javax.swing.JFrame;
 
-import com.sun.opengl.util.FPSAnimator;
-import com.sun.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.texture.Texture;
 import java.awt.BorderLayout;
-import javax.media.opengl.DebugGL;
-import javax.media.opengl.glu.GLUquadric;
+import com.jogamp.opengl.DebugGL2;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.glu.GLUquadric;
 
 
 
@@ -76,7 +77,7 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
 
     /**
      * @return Some standard GL capabilities (with alpha).
-     */
+     *
     private static GLCapabilities createGLCapabilities() {
         GLCapabilities capabilities = new GLCapabilities();
         capabilities.setRedBits(8);
@@ -84,30 +85,30 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
         capabilities.setGreenBits(8);
         capabilities.setAlphaBits(8);
         return capabilities;
-    }
+    } */
 
     /**
      * Sets up the screen.
      * 
-     * @see javax.media.opengl.GLEventListener#init(javax.media.opengl.GLAutoDrawable)
+     * @see com.jogamp.opengl.GLEventListener#init(com.jogamp.opengl.GLAutoDrawable)
      */
     public void init(GLAutoDrawable drawable) {
-        drawable.setGL(new DebugGL(drawable.getGL()));
-        final GL gl = drawable.getGL();
+        drawable.setGL(new DebugGL2(drawable.getGL().getGL2()));
+        final GL2 gl = drawable.getGL().getGL2();
 
         // Enable z- (depth) buffer for hidden surface removal. 
-        gl.glEnable(GL.GL_DEPTH_TEST);
-        gl.glDepthFunc(GL.GL_LEQUAL);
+        gl.glEnable(GL2.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL2.GL_LEQUAL);
 
         // Enable smooth shading.
-        gl.glShadeModel(GL.GL_SMOOTH);
+        gl.glShadeModel(GL2.GL_SMOOTH);
         
 
         // Define "clear" color.
         gl.glClearColor(0f, 0f, 0f, 0f);
 
         // We want a nice perspective.
-        gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
+        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
 
         // Create GLU.
         glu = new GLU();
@@ -148,13 +149,13 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
     /**
      * The only method that you should implement by yourself.
      * 
-     * @see javax.media.opengl.GLEventListener#display(javax.media.opengl.GLAutoDrawable)
+     * @see com.jogamp.opengl.GLEventListener#display(com.jogamp.opengl.GLAutoDrawable)
      */
     public void display(GLAutoDrawable drawable) {
         if (!animator.isAnimating()) {
             return;
         }
-        final GL gl = drawable.getGL();
+        final GL2 gl = drawable.getGL().getGL2();
 
         // Clear screen.
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -192,9 +193,9 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
         */
         // Set material properties.
         float[] rgba = {1f, 1f, 1f};
-        gl.glMaterialfv(GL.GL_FRONT, GL.GL_AMBIENT, rgba, 0);
-        gl.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, rgba, 0);
-        gl.glMaterialf(GL.GL_FRONT, GL.GL_SHININESS, 0.5f);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
+        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.5f);
         
         
         gl.glBegin(GL.GL_TRIANGLES);
@@ -216,9 +217,10 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
      * @param glu The GL unit.
      * @param distance The distance from the screen.
      */
-    private void setCamera(GL gl, GLU glu) {
+    private void setCamera(GL gll, GLU glu) {
+        GL2 gl = gll.getGL2();
         // Change to projection matrix.
-        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
 
         // Perspective.
@@ -227,13 +229,13 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
         glu.gluLookAt(camera.getX(),camera.getY(),camera.getHeight(),   camera.getFocusX(),camera.getFocusY(),0,     0, 0, 1);
         
         // Change back to model view matrix.
-        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
     }
     
     
-    private void setLighting(GL gl){
-        
+    private void setLighting(GL gll){
+        GL2 gl = gll.getGL2();
         // Prepare light parameters.
         float SHINE_ALL_DIRECTIONS = 1;
         float[] lightPos = {0, 30, 100, SHINE_ALL_DIRECTIONS};
@@ -241,13 +243,13 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
         float[] lightColorSpecular = {0.8f, 0.8f, 0.8f, 1f};
 
         // Set light parameters.
-        gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, lightPos, 0);
-        gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, lightColorAmbient, 0);
-        gl.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, lightColorSpecular, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightPos, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, lightColorAmbient, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, lightColorSpecular, 0);
 
         // Enable lighting in GL.
-        gl.glEnable(GL.GL_LIGHT1);
-        gl.glEnable(GL.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT1);
+        gl.glEnable(GL2.GL_LIGHTING);
     }
     
     private void recalcTriangles(){
@@ -296,7 +298,7 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
     /**
      * Resizes the screen.
      * 
-     * @see javax.media.opengl.GLEventListener#reshape(javax.media.opengl.GLAutoDrawable,
+     * @see com.jogamp.opengl.GLEventListener#reshape(com.jogamp.opengl.GLAutoDrawable,
      *      int, int, int, int)
      */
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
@@ -307,11 +309,15 @@ public class GodAlgorythm extends GLCanvas implements GLEventListener {
     /**
      * Changing devices is not supported.
      * 
-     * @see javax.media.opengl.GLEventListener#displayChanged(javax.media.opengl.GLAutoDrawable,
+     * @see com.jogamp.opengl.GLEventListener#displayChanged(com.jogamp.opengl.GLAutoDrawable,
      *      boolean, boolean)
      */
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
         throw new UnsupportedOperationException("Changing display is not supported.");
+    }
+
+    public void dispose(GLAutoDrawable glad) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     

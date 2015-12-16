@@ -5,7 +5,7 @@ import TileMap.Entities.House;
 import Tools.GV;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import javax.media.opengl.GLCanvas;
+import com.jogamp.opengl.awt.GLCanvas;
 
 
 

@@ -16,7 +16,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import javax.media.opengl.GL;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
 
 public class House extends Entity
     //implements missionMaster, collideable
@@ -69,17 +70,17 @@ public class House extends Entity
     }
 
     
-    public void draw(GL gl)
+    public void draw(GL gll)
     {
 
-        
+        GL2 gl = gll.getGL2();
         float[] Corner0 = tile.getCornerBuffer(0);
         float[] Corner1 = tile.getCornerBuffer(1);
         float[] Corner2 = tile.getCornerBuffer(2);
         float[] Corner3 = tile.getCornerBuffer(3);
         
         //wand1
-        gl.glBegin(GL.GL_QUADS);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glColor3f(1f, 1f, 1f);
         gl.glVertex3f(Corner0[0],Corner0[1],Corner0[2]);
         gl.glVertex3f(Corner0[0],Corner0[1],Corner0[2]+10);
@@ -89,7 +90,7 @@ public class House extends Entity
         gl.glEnd();
         
         //wand2
-        gl.glBegin(GL.GL_QUADS);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glColor3f(1f, 1f, 1f);
         gl.glVertex3f(Corner1[0],Corner1[1],Corner1[2]);
         gl.glVertex3f(Corner1[0],Corner1[1],Corner1[2]+10);
@@ -99,7 +100,7 @@ public class House extends Entity
         gl.glEnd();
         
         //wand3
-        gl.glBegin(GL.GL_QUADS);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glColor3f(1f, 1f, 1f);
         gl.glVertex3f(Corner2[0],Corner2[1],Corner2[2]);
         gl.glVertex3f(Corner2[0],Corner2[1],Corner2[2]+10);
@@ -109,7 +110,7 @@ public class House extends Entity
         gl.glEnd();
         
         //wand4
-        gl.glBegin(GL.GL_QUADS);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glColor3f(1f, 1f, 1f);
         gl.glVertex3f(Corner3[0],Corner3[1],Corner3[2]);
         gl.glVertex3f(Corner3[0],Corner3[1],Corner3[2]+10);
@@ -119,7 +120,7 @@ public class House extends Entity
         gl.glEnd();
         
         //decke
-        gl.glBegin(GL.GL_QUADS);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glColor3f(1f, 0f, 0f);
         gl.glVertex3f(Corner0[0],Corner0[1],Corner0[2]+10);
         gl.glVertex3f(Corner1[0],Corner1[1],Corner1[2]+10);

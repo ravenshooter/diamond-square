@@ -17,9 +17,10 @@ import java.util.ArrayList;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.nio.FloatBuffer;
-import javax.media.opengl.GL;
-import javax.media.opengl.glu.GLU;
-import javax.media.opengl.glu.GLUquadric;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
 /**
  * Write a description of class Tile here.
  * 
@@ -249,8 +250,8 @@ public class Tile implements Comparable<Tile>, aStarAble
     }
     
     
-    public void draw(GL gl) {
-        
+    public void draw(GL gll) {
+        GL2 gl = gll.getGL2();
         //Drawing triangles: geschnitten wird in x = y richtung 
         if (marked) {
             gl.glColor3f(1, 0, 0);
@@ -287,7 +288,8 @@ public class Tile implements Comparable<Tile>, aStarAble
         
     }
     
-    public void drawCorner(GL gl, int Nr){
+    public void drawCorner(GL gll, int Nr){
+        GL2 gl = gll.getGL2();
         GLU glu = new GLU();
         
         gl.glColor3f(1, 0, 0);

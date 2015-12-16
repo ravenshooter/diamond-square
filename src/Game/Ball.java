@@ -11,9 +11,10 @@ import TileMap.Tile;
 import Tools.GV;
 import Tools.Vertex;
 import java.util.Timer;
-import javax.media.opengl.GL;
-import javax.media.opengl.glu.GLU;
-import javax.media.opengl.glu.GLUquadric;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
 import javax.swing.text.Position;
 
 /**
@@ -65,7 +66,8 @@ public class Ball extends Entity implements cameraMover{
     }
     
     @Override
-    public synchronized void draw(GL gl) {
+    public synchronized void draw(GL gll) {
+        GL2 gl = gll.getGL2();
         GLU glu = new GLU();
         
         gl.glColor3f(color, 0.1f, 0.1f);
